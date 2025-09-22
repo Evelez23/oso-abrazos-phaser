@@ -1,29 +1,66 @@
-// src/scenes/GameScene.js
-import Oso from '../classes/Oso.js';
-
-export default class GameScene extends Phaser.Scene {
+class GameScene extends Phaser.Scene {
     constructor() {
         super({ key: 'GameScene' });
     }
 
     init(data) {
         this.level = data.level || '1-1';
+        this.levelConfig = this.getLevelConfig();
     }
 
     create() {
-        // Crear fondo según el nivel
         this.createBackground();
-        
-        // Crear plataformas
         this.createPlatforms();
-        
-        // Crear oso
         this.createOso();
-        
-        // Crear amigos y enemigos
         this.createFriends();
         this.createEnemies();
+        this.createHearts();
+        this.setupPhysics();
+        this.setupControls();
+        this.createUI();
         
+        this.backgroundMusic = this.sound.add('background', { loop: true });
+        if (window.gameState.soundEnabled) {
+            this.backgroundMusic.play();
+        }
+    }
+
+    createOso() {
+        this.oso = new Oso(this, 100, 400);
+        this.physics.add.collider(this.oso, this.platforms);
+    }
+
+    createFriends() {
+        this.friends = this.physics.add.group();
+        const friendTypes = ['squirrel', 'rabbit', 'bird'];
+        
+        for (let i = 0; i < this.levelConfig.friends; i++) {
+            const type = friendTypes[i % friendTypes.length];
+            const friend = new Friend(this, Phaser.Math.Between(150, 700), Phaser.Math.Between(100, 400), type);
+            this.friends.add(friend);
+        }
+    }
+
+    createEnemies() {
+        this.enemies = this.physics.add.group();
+        
+        for (let i = 0; i < this.levelConfig.enemies; i++) {
+            const enemyType = Phaser.Math.Between(1, 3);
+            const enemy = new Enemy(this, Phaser.Math.Between(200, 600), 400, enemyType);
+            this.enemies.add(enemy);
+        }
+        
+        this.physics.add.collider(this.enemies, this.platforms);
+    }
+
+    createHearts() {
+        this.hearts = this.physics.add.group();
+        
+        for (let i = 0; i < this.levelConfig.hearts; i++) {
+            const heart = new Heart(this, Phaser.Math.Between(100, 700), Phaser.Math.Between(100, 300));
+            this.hearts.add(heart);
+        }
+    }
         // Configurar físicas y colisiones
         this.setupPhysics();
         
