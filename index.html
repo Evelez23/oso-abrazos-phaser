@@ -5,19 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Oso Abrazos - Phaser</title>
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background: #000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+        body { 
+            margin: 0; 
+            padding: 0; 
+            background: #000; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
             font-family: Arial, sans-serif;
         }
-        #game-container {
-            border: 2px solid #333;
-            border-radius: 8px;
+        #game-container { 
+            border: 2px solid #333; 
+            border-radius: 8px; 
             overflow: hidden;
         }
     </style>
@@ -28,7 +28,19 @@
     <!-- Phaser CDN -->
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.min.js"></script>
     
-    <!-- Nuestros archivos -->
-    <script type="module" src="src/main.js"></script>
+    <!-- CARGAR SCRIPTS EN ORDEN (SIN type="module") -->
+    <script src="src/classes/Heart.js"></script>
+    <script src="src/classes/Friend.js"></script>
+    <script src="src/classes/Enemy.js"></script>
+    <script src="src/classes/Oso.js"></script>
+    
+    <script src="src/scenes/BootScene.js"></script>
+    <script src="src/scenes/PreloadScene.js"></script>
+    <script src="src/scenes/MenuScene.js"></script>
+    <script src="src/scenes/GameScene.js"></script>
+    <script src="src/scenes/BossScene.js"></script>
+    <script src="src/scenes/VictoryScene.js"></script>
+    
+    <script src="src/main.js"></script>
 </body>
 </html>
