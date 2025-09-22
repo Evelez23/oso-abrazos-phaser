@@ -1,5 +1,5 @@
 // src/classes/Oso.js
-export default class Oso extends Phaser.Physics.Arcade.Sprite {
+class Oso extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, x, y) {
         super(scene, x, y, 'oso_idle');
         scene.add.existing(this);
