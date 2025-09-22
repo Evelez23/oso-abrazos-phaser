@@ -1,5 +1,5 @@
 // src/classes/Enemy.js
-export default class Enemy extends Phaser.Physics.Arcade.Sprite {
+class Oso extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, x, y, type) {
         super(scene, x, y, `enemy${type}`);
         scene.add.existing(this);
