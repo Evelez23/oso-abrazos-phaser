@@ -1,5 +1,5 @@
 // src/classes/Friend.js
-export default class Friend extends Phaser.Physics.Arcade.Sprite {
+class Friend extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, x, y, type) {
         const textureMap = {
             'squirrel': 'squirrel',
