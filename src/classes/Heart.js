@@ -1,5 +1,5 @@
 // src/classes/Heart.js
-export default class Heart extends Phaser.Physics.Arcade.Sprite {
+class Heart extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, x, y) {
         super(scene, x, y, 'heart');
         scene.add.existing(this);
