@@ -1,14 +1,17 @@
 class GameScene extends Phaser.Scene {
-    constructor() {
+    constructor() { 
         super({ key: 'GameScene' });
     }
 
     init(data) {
         this.level = data.level || '1-1';
         this.levelConfig = this.getLevelConfig();
+        console.log(`🎯 Iniciando nivel: ${this.level}`);
     }
 
     create() {
+        window.gameState.gameStarted = true;
+        
         this.createBackground();
         this.createPlatforms();
         this.createOso();
@@ -18,15 +21,42 @@ class GameScene extends Phaser.Scene {
         this.setupPhysics();
         this.setupControls();
         this.createUI();
+    }
+
+    getLevelConfig() {
+        const levels = {
+            '1-1': { friends: 2, enemies: 1, hearts: 1 },
+            '1-2': { friends: 3, enemies: 2, hearts: 1 },
+            '1-3': { friends: 4, enemies: 3, hearts: 2 }
+        };
+        return levels[this.level] || levels['1-1'];
+    }
+
+    createBackground() {
+        const bgKey = `forest${this.level.split('-')[1]}`;
+        this.add.image(400, 300, bgKey).setDisplaySize(800, 600);
+    }
+
+    createPlatforms() {
+        this.platforms = this.physics.add.staticGroup();
         
-        this.backgroundMusic = this.sound.add('background', { loop: true });
-        if (window.gameState.soundEnabled) {
-            this.backgroundMusic.play();
+        // PLATAFORMA PRINCIPAL EN LA PARTE INFERIOR
+        this.platforms.create(400, 550, null).setSize(600, 20).setOrigin(0.5, 0.5);
+        
+        // Plataformas adicionales según nivel
+        if (this.level === '1-2') {
+            this.platforms.create(200, 450, null).setSize(150, 20).setOrigin(0.5, 0.5);
+            this.platforms.create(600, 450, null).setSize(150, 20).setOrigin(0.5, 0.5);
+        } else if (this.level === '1-3') {
+            this.platforms.create(200, 450, null).setSize(150, 20).setOrigin(0.5, 0.5);
+            this.platforms.create(400, 350, null).setSize(200, 20).setOrigin(0.5, 0.5);
+            this.platforms.create(600, 450, null).setSize(150, 20).setOrigin(0.5, 0.5);
         }
     }
 
     createOso() {
-        this.oso = new Oso(this, 100, 400);
+        // OSO MÁS ARRIBA EN LA PLATAFORMA
+        this.oso = new Oso(this, 100, 500);  // Y: 500 (sobre la plataforma)
         this.physics.add.collider(this.oso, this.platforms);
     }
 
@@ -36,7 +66,12 @@ class GameScene extends Phaser.Scene {
         
         for (let i = 0; i < this.levelConfig.friends; i++) {
             const type = friendTypes[i % friendTypes.length];
-            const friend = new Friend(this, Phaser.Math.Between(150, 700), Phaser.Math.Between(100, 400), type);
+            const friend = new Friend(
+                this,
+                Phaser.Math.Between(150, 650),
+                Phaser.Math.Between(300, 450),  // ← Mejor posicionamiento
+                type
+            );
             this.friends.add(friend);
         }
     }
@@ -46,7 +81,12 @@ class GameScene extends Phaser.Scene {
         
         for (let i = 0; i < this.levelConfig.enemies; i++) {
             const enemyType = Phaser.Math.Between(1, 3);
-            const enemy = new Enemy(this, Phaser.Math.Between(200, 600), 400, enemyType);
+            const enemy = new Enemy(
+                this,
+                Phaser.Math.Between(200, 600),
+                500,  // ← SOBRE LA PLATAFORMA
+                enemyType
+            );
             this.enemies.add(enemy);
         }
         
@@ -57,8 +97,17 @@ class GameScene extends Phaser.Scene {
         this.hearts = this.physics.add.group();
         
         for (let i = 0; i < this.levelConfig.hearts; i++) {
-            const heart = new Heart(this, Phaser.Math.Between(100, 700), Phaser.Math.Between(100, 300));
+            const heart = new Heart(
+                this,
+                Phaser.Math.Between(100, 700),
+                Phaser.Math.Between(200, 400)  // ← EN EL AIRE, NO EN PLATAFORMAS
+            );
             this.hearts.add(heart);
+        }
+    }
+
+    // ... el resto del código igual
+}
         }
     }
         // Configurar físicas y colisiones
