@@ -55,10 +55,9 @@ class GameScene extends Phaser.Scene {
     }
 
     createOso() {
-        // OSO MÁS ARRIBA EN LA PLATAFORMA
-        this.oso = new Oso(this, 100, 500);  // Y: 500 (sobre la plataforma)
-        this.physics.add.collider(this.oso, this.platforms);
-    }
+    this.oso = new Oso(this, 100, 300);  // Posición más alta
+    this.physics.add.collider(this.oso, this.platforms);
+}
 
     createFriends() {
         this.friends = this.physics.add.group();
