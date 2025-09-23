@@ -4,6 +4,9 @@ class Oso extends Phaser.Physics.Arcade.Sprite {
         super(scene, x, y, 'oso_idle');
         scene.add.existing(this);
         scene.physics.add.existing(this);
+        // En el constructor de la clase Oso:
+this.body.setSize(30, 50);  // Hacerlo más pequeño
+this.body.setOffset(25, 30); // Mejor centrado
 
         // Propiedades del oso
         this.setCollideWorldBounds(true);
