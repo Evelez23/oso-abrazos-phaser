@@ -14,254 +14,168 @@
             align-items: center;
             min-height: 100vh;
             font-family: 'Comic Sans MS', cursive;
-            cursor: pointer;
         }
         #game-container {
             border: 5px solid #34495e;
             border-radius: 10px;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
         }
-        #start-screen {
+        #loading {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             color: white;
-            z-index: 100;
-        }
-        #start-button {
-            padding: 15px 30px;
             font-size: 20px;
-            background: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-family: 'Comic Sans MS';
-            margin-top: 20px;
         }
     </style>
 </head>
 <body>
-    <div id="start-screen">
-        <h1>🦥 Oso Abrazos</h1>
-        <p>¡Haz clic para comenzar la aventura!</p>
-        <button id="start-button">Comenzar Juego</button>
-        <p style="margin-top: 20px; font-size: 14px; color: #ccc;">
-            Usa las flechas para moverte y ESPACIO para abrazar
-        </p>
-    </div>
+    <div id="loading">Cargando juego...</div>
     <div id="game-container"></div>
 
     <script>
-        console.log("🎮 Inicializando Oso Abrazos...");
-
-        let game;
-        let gameStarted = false;
-
-        // Esperar a que el usuario interactúe antes de iniciar Phaser
-        document.getElementById('start-button').addEventListener('click', startGame);
-        document.body.addEventListener('click', startGame);
-
-        function startGame() {
-            if (gameStarted) return;
-            gameStarted = true;
-            
-            document.getElementById('start-screen').style.display = 'none';
-            initializeGame();
-        }
-
-        function initializeGame() {
-            const config = {
-                type: Phaser.AUTO,
-                width: 800,
-                height: 500,
-                parent: 'game-container',
-                backgroundColor: '#87CEEB',
-                physics: {
-                    default: 'arcade',
-                    arcade: {
-                        gravity: { y: 300 },
-                        debug: false
-                    }
-                },
-                scene: {
-                    preload: preload,
-                    create: create,
-                    update: update
-                },
-                audio: {
-                    disableWebAudio: false // Habilitar audio después de interacción del usuario
+        console.log("Iniciando juego Oso Abrazos...");
+        
+        const config = {
+            type: Phaser.AUTO,
+            width: 800,
+            height: 500,
+            parent: 'game-container',
+            backgroundColor: '#3498db',
+            physics: {
+                default: 'arcade',
+                arcade: {
+                    gravity: { y: 300 },
+                    debug: false
                 }
-            };
+            },
+            scene: {
+                preload: preload,
+                create: create,
+                update: update
+            }
+        };
 
-            game = new Phaser.Game(config);
-        }
+        const game = new Phaser.Game(config);
+        let player, platforms, cursors, score = 0, scoreText;
 
         function preload() {
-            console.log("✅ Precargando assets...");
+            console.log("Precargando assets...");
             
-            // Crear assets programáticamente
+            // Crear assets básicos programáticamente
             const graphics = this.make.graphics({ x: 0, y: 0, add: false });
             
-            // Plataforma
+            // Crear plataforma
             graphics.fillStyle(0x8D6E63);
             graphics.fillRect(0, 0, 400, 32);
             graphics.fillStyle(0x5D4037);
             graphics.fillRect(0, 0, 400, 4);
             graphics.generateTexture('platform', 400, 32);
             
-            // Oso - múltiples frames para animación
-            for (let i = 0; i < 4; i++) {
-                graphics.fillStyle(0x8B4513);
-                graphics.fillCircle(50, 50, 40 - i * 2); // Pequeña variación para animación
-                graphics.fillStyle(0x000000);
-                graphics.fillCircle(35, 35, 5);
-                graphics.fillCircle(65, 35, 5);
-                graphics.fillCircle(50, 50, 8);
-                graphics.generateTexture(`bear_${i}`, 100, 100);
-                graphics.clear();
-            }
+            // Crear oso básico
+            graphics.fillStyle(0x8B4513);
+            graphics.fillCircle(50, 50, 40);
+            graphics.fillStyle(0x000000);
+            graphics.fillCircle(35, 35, 5);
+            graphics.fillCircle(65, 35, 5);
+            graphics.fillCircle(50, 50, 8);
+            graphics.generateTexture('bear', 100, 100);
             
             graphics.destroy();
-            console.log("✅ Assets creados correctamente");
+            
+            console.log("Assets creados correctamente");
         }
 
         function create() {
-            console.log("🎮 Creando escena del juego...");
+            console.log("Creando escena del juego...");
             
-            // Fondo con gradiente
-            this.add.rectangle(400, 250, 800, 500, 0x87CEEB);
+            // Ocultar mensaje de carga
+            document.getElementById('loading').style.display = 'none';
             
-            // Nubes decorativas
-            for (let i = 0; i < 5; i++) {
-                const cloud = this.add.circle(100 + i * 150, 80 + Math.sin(i) * 20, 30, 0xFFFFFF, 0.8);
-                this.add.circle(cloud.x - 20, cloud.y - 10, 20, 0xFFFFFF, 0.8);
-                this.add.circle(cloud.x + 20, cloud.y - 10, 25, 0xFFFFFF, 0.8);
-            }
-
-            // Plataformas
-            const platforms = this.physics.add.staticGroup();
+            // Crear plataformas
+            platforms = this.physics.add.staticGroup();
             platforms.create(400, 470, 'platform').setScale(2).refreshBody();
             platforms.create(200, 350, 'platform');
             platforms.create(600, 350, 'platform');
             platforms.create(100, 250, 'platform');
             platforms.create(700, 200, 'platform');
-
-            // Jugador
-            const player = this.physics.add.sprite(100, 450, 'bear_0');
-            player.setBounce(0.3);
+            
+            // Crear jugador
+            player = this.physics.add.sprite(100, 450, 'bear');
+            player.setBounce(0.2);
             player.setCollideWorldBounds(true);
             player.setScale(0.8);
-
-            // Animación simple del oso
-            this.anims.create({
-                key: 'idle',
-                frames: [
-                    { key: 'bear_0' },
-                    { key: 'bear_1' },
-                    { key: 'bear_2' },
-                    { key: 'bear_3' }
-                ],
-                frameRate: 5,
-                repeat: -1
-            });
             
-            player.anims.play('idle');
-
-            // Colisiones
+            // Configurar colisiones
             this.physics.add.collider(player, platforms);
-
-            // Controles
-            this.cursors = this.input.keyboard.createCursorKeys();
             
-            // Sistema de puntuación
-            this.score = 0;
-            this.scoreText = this.add.text(16, 16, 'Abrazos: 0', {
-                fontSize: '24px',
-                fill: '#2C3E50',
+            // Configurar controles
+            cursors = this.input.keyboard.createCursorKeys();
+            
+            // Crear texto de puntuación
+            scoreText = this.add.text(16, 16, 'Puntos: 0', {
+                fontSize: '20px',
+                fill: '#000',
                 fontFamily: 'Comic Sans MS',
-                backgroundColor: '#FFFFFF',
+                backgroundColor: '#fff',
                 padding: { x: 10, y: 5 }
             });
-
-            // Mensaje de bienvenida
-            const welcomeText = this.add.text(400, 200, '¡Bienvenido Oso Abrazos!', {
-                fontSize: '32px',
-                fill: '#2C3E50',
-                fontFamily: 'Comic Sans MS',
-                stroke: '#FFFFFF',
-                strokeThickness: 4
-            }).setOrigin(0.5);
             
-            this.time.delayedCall(2000, () => {
-                welcomeText.destroy();
-            });
-
-            console.log("🎮 Juego listo para jugar!");
+            // Instrucciones
+            this.add.text(400, 16, '← → mover | ↑ saltar | ESPACIO abrazar', {
+                fontSize: '16px',
+                fill: '#000',
+                fontFamily: 'Comic Sans MS',
+                backgroundColor: '#fff',
+                padding: { x: 10, y: 5 }
+            }).setOrigin(0.5, 0);
+            
+            console.log("Juego listo para jugar!");
         }
 
         function update() {
-            const player = this.children.list.find(child => child.texture && child.texture.key.includes('bear'));
-            if (!player || !this.cursors) return;
-
-            // Movimiento
-            if (this.cursors.left.isDown) {
-                player.setVelocityX(-200);
+            // Movimiento horizontal
+            if (cursors.left.isDown) {
+                player.setVelocityX(-160);
                 player.setFlipX(true);
-            } else if (this.cursors.right.isDown) {
-                player.setVelocityX(200);
+            } else if (cursors.right.isDown) {
+                player.setVelocityX(160);
                 player.setFlipX(false);
             } else {
                 player.setVelocityX(0);
             }
-
+            
             // Salto
-            if (this.cursors.up.isDown && player.body.touching.down) {
-                player.setVelocityY(-350);
+            if (cursors.up.isDown && player.body.touching.down) {
+                player.setVelocityY(-330);
             }
-
+            
             // Abrazo
-            if (Phaser.Input.Keyboard.JustDown(this.cursors.space)) {
-                this.score += 1;
-                this.scoreText.setText('Abrazos: ' + this.score);
-                
-                // Efecto de abrazo
+            if (Phaser.Input.Keyboard.JustDown(cursors.space)) {
+                // Efecto visual de abrazo
                 const hugEffect = this.add.graphics();
-                hugEffect.lineStyle(6, 0xFFD700, 0.8);
-                hugEffect.strokeCircle(player.x, player.y, 60);
+                hugEffect.lineStyle(4, 0xFFD700);
+                hugEffect.strokeCircle(player.x, player.y, 50);
                 
-                // Partículas de amor
-                for (let i = 0; i < 8; i++) {
-                    const heart = this.add.text(
-                        player.x + (Math.random() - 0.5) * 100,
-                        player.y + (Math.random() - 0.5) * 100,
-                        '❤️',
-                        { fontSize: '20px' }
-                    );
-                    
-                    this.tweens.add({
-                        targets: heart,
-                        y: heart.y - 50,
-                        alpha: 0,
-                        duration: 1000,
-                        onComplete: () => heart.destroy()
-                    });
-                }
-
-                this.time.delayedCall(500, () => {
+                // Añadir puntos
+                score += 10;
+                scoreText.setText('Puntos: ' + score);
+                
+                // Remover efecto después de un tiempo
+                this.time.delayedCall(300, () => {
                     hugEffect.destroy();
                 });
             }
         }
-
-        console.log("✅ Juego inicializado correctamente");
+        
+        // Manejar errores
+        game.events.on('ERROR', function (error) {
+            console.error('Error en el juego:', error);
+            document.getElementById('loading').textContent = 'Error: ' + error.message;
+        });
+        
+        console.log("Juego inicializado correctamente");
     </script>
 </body>
 </html>
