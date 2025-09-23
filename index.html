@@ -2,160 +2,266 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Oso Abrazos - Phaser</title>
+    <title>Oso Abrazos - Juego Completo</title>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.min.js"></script>
     <style>
-        body { 
-            margin: 0; 
-            padding: 0; 
-            background: #000; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            min-height: 100vh; 
-            font-family: Arial, sans-serif;
+        body {
+            margin: 0;
+            padding: 0;
+            background: #2c3e50;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Comic Sans MS', cursive;
+            cursor: pointer;
         }
-        #game-container { 
-            border: 2px solid #333; 
-            border-radius: 8px; 
-            overflow: hidden;
+        #game-container {
+            border: 5px solid #34495e;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
         }
-        .loading {
+        #start-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
             color: white;
-            font-size: 20px;
-            text-align: center;
-            padding: 20px;
+            z-index: 100;
         }
-        .hidden {
-            display: none;
+        #start-button {
+            padding: 15px 30px;
+            font-size: 20px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: 'Comic Sans MS';
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
-    <div id="game-container">
-        <div id="loading" class="loading">🔄 Cargando Oso Abrazos...</div>
+    <div id="start-screen">
+        <h1>🦥 Oso Abrazos</h1>
+        <p>¡Haz clic para comenzar la aventura!</p>
+        <button id="start-button">Comenzar Juego</button>
+        <p style="margin-top: 20px; font-size: 14px; color: #ccc;">
+            Usa las flechas para moverte y ESPACIO para abrazar
+        </p>
     </div>
+    <div id="game-container"></div>
 
-    <script src="https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.min.js"></script>
-    
     <script>
-    // ============= CONFIGURACIÓN GLOBAL =============
-    window.gameState = {
-        currentLevel: '1-1',
-        score: 0,
-        lives: 3,
-        heartsCollected: 0,
-        soundEnabled: true,
-        gameStarted: false
-    };
+        console.log("🎮 Inicializando Oso Abrazos...");
 
-    // ============= CLASES DEL JUEGO =============
-    class Oso extends Phaser.Physics.Arcade.Sprite {
-        // ... (código de la clase Oso igual)
-    }
+        let game;
+        let gameStarted = false;
 
-    class Enemy extends Phaser.Physics.Arcade.Sprite {
-        // ... (código de la clase Enemy)
-    }
+        // Esperar a que el usuario interactúe antes de iniciar Phaser
+        document.getElementById('start-button').addEventListener('click', startGame);
+        document.body.addEventListener('click', startGame);
 
-    class Friend extends Phaser.Physics.Arcade.Sprite {
-        // ... (código de la clase Friend)
-    }
-
-    class Heart extends Phaser.Physics.Arcade.Sprite {
-        // ... (código de la clase Heart)
-    }
-
-    // ============= ESCENAS (DEBEN ESTAR ANTES DE config) =============
-    class BootScene extends Phaser.Scene {
-        constructor() { 
-            super({ key: 'BootScene' });
+        function startGame() {
+            if (gameStarted) return;
+            gameStarted = true;
+            
+            document.getElementById('start-screen').style.display = 'none';
+            initializeGame();
         }
 
-        preload() {
-            this.load.image('loading', 'https://raw.githubusercontent.com/Evelez23/-oso.abrazos-/main/img/oso/oso_portada.png');
+        function initializeGame() {
+            const config = {
+                type: Phaser.AUTO,
+                width: 800,
+                height: 500,
+                parent: 'game-container',
+                backgroundColor: '#87CEEB',
+                physics: {
+                    default: 'arcade',
+                    arcade: {
+                        gravity: { y: 300 },
+                        debug: false
+                    }
+                },
+                scene: {
+                    preload: preload,
+                    create: create,
+                    update: update
+                },
+                audio: {
+                    disableWebAudio: false // Habilitar audio después de interacción del usuario
+                }
+            };
+
+            game = new Phaser.Game(config);
         }
 
-        create() {
-            console.log('✅ BootScene cargada');
-            this.scene.start('PreloadScene');
-        }
-    }
-
-    class PreloadScene extends Phaser.Scene {
-        constructor() { 
-            super({ key: 'PreloadScene' });
-        }
-
-        preload() {
-            this.createProgressBar();
-            this.loadAssets();
-        }
-
-        createProgressBar() {
-            // ... (código de la barra de progreso)
-        }
-
-        loadAssets() {
-            // ... (código de carga de assets)
-        }
-
-        create() {
-            console.log('✅ Todos los assets cargados');
-            this.scene.start('MenuScene');
-        }
-    }
-
-    class MenuScene extends Phaser.Scene {
-        constructor() { 
-            super({ key: 'MenuScene' });
-        }
-
-        create() {
-            // ... (código del menú)
-        }
-    }
-
-    class GameScene extends Phaser.Scene {
-        constructor() { 
-            super({ key: 'GameScene' });
-        }
-
-        init(data) {
-            // ... (código del juego)
-        }
-
-        create() {
-            // ... (código del juego)
-        }
-
-        // ... (todos los métodos del GameScene)
-    }
-
-    // ============= CONFIGURACIÓN DE PHASER (DESPUÉS de las escenas) =============
-    const config = {
-        type: Phaser.AUTO,
-        width: 800,
-        height: 600,
-        parent: 'game-container',
-        backgroundColor: '#87CEEB',
-        physics: {
-            default: 'arcade',
-            arcade: {
-                gravity: { y: 800 },
-                debug: false
+        function preload() {
+            console.log("✅ Precargando assets...");
+            
+            // Crear assets programáticamente
+            const graphics = this.make.graphics({ x: 0, y: 0, add: false });
+            
+            // Plataforma
+            graphics.fillStyle(0x8D6E63);
+            graphics.fillRect(0, 0, 400, 32);
+            graphics.fillStyle(0x5D4037);
+            graphics.fillRect(0, 0, 400, 4);
+            graphics.generateTexture('platform', 400, 32);
+            
+            // Oso - múltiples frames para animación
+            for (let i = 0; i < 4; i++) {
+                graphics.fillStyle(0x8B4513);
+                graphics.fillCircle(50, 50, 40 - i * 2); // Pequeña variación para animación
+                graphics.fillStyle(0x000000);
+                graphics.fillCircle(35, 35, 5);
+                graphics.fillCircle(65, 35, 5);
+                graphics.fillCircle(50, 50, 8);
+                graphics.generateTexture(`bear_${i}`, 100, 100);
+                graphics.clear();
             }
-        },
-        scene: [BootScene, PreloadScene, MenuScene, GameScene],  // ← AHORA SÍ EXISTEN
-        scale: {
-            mode: Phaser.Scale.FIT,
-            autoCenter: Phaser.Scale.CENTER_BOTH
+            
+            graphics.destroy();
+            console.log("✅ Assets creados correctamente");
         }
-    };
 
-    // INICIAR EL JUEGO
-    const game = new Phaser.Game(config);
-    console.log('🎮 Oso Abrazos inicializado!');
-</script>
+        function create() {
+            console.log("🎮 Creando escena del juego...");
+            
+            // Fondo con gradiente
+            this.add.rectangle(400, 250, 800, 500, 0x87CEEB);
+            
+            // Nubes decorativas
+            for (let i = 0; i < 5; i++) {
+                const cloud = this.add.circle(100 + i * 150, 80 + Math.sin(i) * 20, 30, 0xFFFFFF, 0.8);
+                this.add.circle(cloud.x - 20, cloud.y - 10, 20, 0xFFFFFF, 0.8);
+                this.add.circle(cloud.x + 20, cloud.y - 10, 25, 0xFFFFFF, 0.8);
+            }
+
+            // Plataformas
+            const platforms = this.physics.add.staticGroup();
+            platforms.create(400, 470, 'platform').setScale(2).refreshBody();
+            platforms.create(200, 350, 'platform');
+            platforms.create(600, 350, 'platform');
+            platforms.create(100, 250, 'platform');
+            platforms.create(700, 200, 'platform');
+
+            // Jugador
+            const player = this.physics.add.sprite(100, 450, 'bear_0');
+            player.setBounce(0.3);
+            player.setCollideWorldBounds(true);
+            player.setScale(0.8);
+
+            // Animación simple del oso
+            this.anims.create({
+                key: 'idle',
+                frames: [
+                    { key: 'bear_0' },
+                    { key: 'bear_1' },
+                    { key: 'bear_2' },
+                    { key: 'bear_3' }
+                ],
+                frameRate: 5,
+                repeat: -1
+            });
+            
+            player.anims.play('idle');
+
+            // Colisiones
+            this.physics.add.collider(player, platforms);
+
+            // Controles
+            this.cursors = this.input.keyboard.createCursorKeys();
+            
+            // Sistema de puntuación
+            this.score = 0;
+            this.scoreText = this.add.text(16, 16, 'Abrazos: 0', {
+                fontSize: '24px',
+                fill: '#2C3E50',
+                fontFamily: 'Comic Sans MS',
+                backgroundColor: '#FFFFFF',
+                padding: { x: 10, y: 5 }
+            });
+
+            // Mensaje de bienvenida
+            const welcomeText = this.add.text(400, 200, '¡Bienvenido Oso Abrazos!', {
+                fontSize: '32px',
+                fill: '#2C3E50',
+                fontFamily: 'Comic Sans MS',
+                stroke: '#FFFFFF',
+                strokeThickness: 4
+            }).setOrigin(0.5);
+            
+            this.time.delayedCall(2000, () => {
+                welcomeText.destroy();
+            });
+
+            console.log("🎮 Juego listo para jugar!");
+        }
+
+        function update() {
+            const player = this.children.list.find(child => child.texture && child.texture.key.includes('bear'));
+            if (!player || !this.cursors) return;
+
+            // Movimiento
+            if (this.cursors.left.isDown) {
+                player.setVelocityX(-200);
+                player.setFlipX(true);
+            } else if (this.cursors.right.isDown) {
+                player.setVelocityX(200);
+                player.setFlipX(false);
+            } else {
+                player.setVelocityX(0);
+            }
+
+            // Salto
+            if (this.cursors.up.isDown && player.body.touching.down) {
+                player.setVelocityY(-350);
+            }
+
+            // Abrazo
+            if (Phaser.Input.Keyboard.JustDown(this.cursors.space)) {
+                this.score += 1;
+                this.scoreText.setText('Abrazos: ' + this.score);
+                
+                // Efecto de abrazo
+                const hugEffect = this.add.graphics();
+                hugEffect.lineStyle(6, 0xFFD700, 0.8);
+                hugEffect.strokeCircle(player.x, player.y, 60);
+                
+                // Partículas de amor
+                for (let i = 0; i < 8; i++) {
+                    const heart = this.add.text(
+                        player.x + (Math.random() - 0.5) * 100,
+                        player.y + (Math.random() - 0.5) * 100,
+                        '❤️',
+                        { fontSize: '20px' }
+                    );
+                    
+                    this.tweens.add({
+                        targets: heart,
+                        y: heart.y - 50,
+                        alpha: 0,
+                        duration: 1000,
+                        onComplete: () => heart.destroy()
+                    });
+                }
+
+                this.time.delayedCall(500, () => {
+                    hugEffect.destroy();
+                });
+            }
+        }
+
+        console.log("✅ Juego inicializado correctamente");
+    </script>
 </body>
 </html>
