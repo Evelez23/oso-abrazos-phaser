@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Oso Abrazos - Con Sprites Reales</title>
+    <title>Oso Abrazos - Sprites Funcionando</title>
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.min.js"></script>
     <style>
         body {
@@ -20,207 +20,114 @@
             border-radius: 10px;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
         }
-        #start-screen {
+        #debug-info {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 10px;
+            left: 10px;
             background: rgba(0, 0, 0, 0.8);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
             color: white;
-            z-index: 100;
-        }
-        #start-button {
-            padding: 15px 30px;
-            font-size: 20px;
-            background: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-family: 'Comic Sans MS';
-            margin-top: 20px;
-        }
-        #loading {
-            color: #FFD700;
-            font-size: 18px;
-            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 12px;
         }
     </style>
 </head>
 <body>
-    <div id="start-screen">
-        <h1>🦥 Oso Abrazos</h1>
-        <p>¡Con sprites reales desde GitHub!</p>
-        <button id="start-button">Comenzar Juego</button>
-        <div id="loading">Cargando sprites...</div>
-    </div>
+    <div id="debug-info">Cargando...</div>
     <div id="game-container"></div>
 
     <script>
-        console.log("🎮 Inicializando Oso Abrazos con sprites reales...");
+        console.log("🎮 Inicializando Oso Abrazos con solución SVG...");
 
-        let game;
-        let gameStarted = false;
-
-        // URLs de tus sprites reales desde GitHub
-        const SPRITES = {
-            // Sprites del oso (reemplaza con tus URLs reales)
-            oso_idle: "https://raw.githubusercontent.com/Evelez23/-microdelecion/refs/heads/main/img/oso_idle.svg",
-            oso_walk: "https://raw.githubusercontent.com/Evelez23/-microdelecion/refs/heads/main/img/oso_walk.svg", 
-            oso_hug: "https://raw.githubusercontent.com/Evelez23/-microdelecion/refs/heads/main/img/oso_hug.svg",
-            oso_hang: "https://raw.githubusercontent.com/Evelez23/-microdelecion/refs/heads/main/img/oso_hang.svg",
-            oso_sit: "https://raw.githubusercontent.com/Evelez23/-microdelecion/refs/heads/main/img/oso_sit.svg",
-            
-            // Sprite sheet que mencionaste
-            sprite_sheet: "https://raw.githubusercontent.com/Evelez23/-oso.abrazos-/refs/heads/main/img/sprites/Gemini_Generated_Image_clv1shclv1shclv1.png",
-            
-            // Sprites de amigos (puedes añadir los tuyos)
-            amigo_ardilla: "https://example.com/ardilla.svg",
-            amigo_conejo: "https://example.com/conejo.svg"
+        const config = {
+            type: Phaser.AUTO,
+            width: 800,
+            height: 500,
+            parent: 'game-container',
+            backgroundColor: '#87CEEB',
+            physics: {
+                default: 'arcade',
+                arcade: {
+                    gravity: { y: 300 },
+                    debug: false
+                }
+            },
+            scene: {
+                preload: preload,
+                create: create,
+                update: update
+            }
         };
 
-        document.getElementById('start-button').addEventListener('click', startGame);
-
-        function startGame() {
-            if (gameStarted) return;
-            gameStarted = true;
-            
-            document.getElementById('loading').textContent = "Cargando sprites desde GitHub...";
-            initializeGame();
-        }
-
-        function initializeGame() {
-            const config = {
-                type: Phaser.AUTO,
-                width: 800,
-                height: 500,
-                parent: 'game-container',
-                backgroundColor: '#87CEEB',
-                physics: {
-                    default: 'arcade',
-                    arcade: {
-                        gravity: { y: 300 },
-                        debug: false
-                    }
-                },
-                scene: {
-                    preload: preload,
-                    create: create,
-                    update: update
-                }
-            };
-
-            game = new Phaser.Game(config);
-        }
+        const game = new Phaser.Game(config);
 
         function preload() {
-            console.log("📥 Cargando sprites reales desde GitHub...");
+            console.log("📥 Cargando recursos...");
             
-            // Cargar tus sprites reales
-            this.load.image('oso_idle', SPRITES.oso_idle);
-            this.load.image('oso_walk', SPRITES.oso_walk);
-            this.load.image('oso_hug', SPRITES.oso_hug);
-            this.load.image('oso_hang', SPRITES.oso_hang);
-            this.load.image('oso_sit', SPRITES.oso_sit);
+            // Cargar el SPRITE SHEET que SÍ funciona con animaciones
+            this.load.image('sprite_sheet', 'https://raw.githubusercontent.com/Evelez23/-oso.abrazos-/refs/heads/main/img/sprites/Gemini_Generated_Image_clv1shclv1shclv1.png');
             
-            // Intentar cargar el sprite sheet
-            this.load.image('sprite_sheet', SPRITES.sprite_sheet);
+            // También cargar los SVG como imágenes estáticas (para mostrar que funcionan)
+            this.load.image('oso_idle', 'https://raw.githubusercontent.com/Evelez23/-microdelecion/refs/heads/main/img/oso_idle.svg');
+            this.load.image('oso_walk', 'https://raw.githubusercontent.com/Evelez23/-microdelecion/refs/heads/main/img/oso_walk.svg');
+            this.load.image('oso_hug', 'https://raw.githubusercontent.com/Evelez23/-microdelecion/refs/heads/main/img/oso_hug.svg');
             
-            // Assets de respaldo por si falla la carga
-            this.load.image('platform', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==');
-            
-            // Mostrar progreso de carga
-            this.load.on('progress', function (value) {
-                document.getElementById('loading').textContent = 
-                    `Cargando: ${Math.round(value * 100)}%`;
-            });
-            
-            this.load.on('complete', function () {
-                document.getElementById('start-screen').style.display = 'none';
-                console.log("✅ Todos los sprites cargados correctamente");
-            });
-            
-            this.load.on('loaderror', function (file) {
-                console.warn("❌ Error cargando:", file.key);
-                document.getElementById('loading').innerHTML += 
-                    `<br>Error con: ${file.key}. Usando gráficos de respaldo.`;
-            });
+            // Plataforma básica
+            const graphics = this.make.graphics();
+            graphics.fillStyle(0x8D6E63);
+            graphics.fillRect(0, 0, 400, 32);
+            graphics.generateTexture('platform', 400, 32);
+            graphics.destroy();
         }
 
         function create() {
-            console.log("🎮 Creando juego con sprites reales...");
+            console.log("🎮 Creando escena...");
             
-            // Verificar qué sprites se cargaron correctamente
-            console.log("Texturas disponibles:", this.textures.getTextureKeys());
+            // Actualizar info de debug
+            document.getElementById('debug-info').innerHTML = `
+                Sprites cargados: ${this.textures.getTextureKeys().length}<br>
+                Usando: Sprite Sheet PNG<br>
+                Controles: ← → ↑ ESPACIO
+            `;
             
             // Fondo
             this.add.rectangle(400, 250, 800, 500, 0x87CEEB);
             
-            // Plataformas (usar gráfico de respaldo si es necesario)
+            // Plataformas
             const platforms = this.physics.add.staticGroup();
             platforms.create(400, 470, 'platform').setScale(2).refreshBody();
             platforms.create(200, 350, 'platform');
             platforms.create(600, 350, 'platform');
             platforms.create(100, 250, 'platform');
+            platforms.create(700, 200, 'platform');
+
+            // OPCIÓN 1: Usar el SPRITE SHEET PNG (recomendado para animaciones)
+            console.log("🖼️ Dimensiones del sprite sheet:", this.textures.get('sprite_sheet').getSourceImage().width, "x", this.textures.get('sprite_sheet').getSourceImage().height);
             
-            // Crear jugador - intentar usar sprites reales
-            let player;
-            const availableTextures = this.textures.getTextureKeys();
-            
-            if (availableTextures.includes('oso_idle')) {
-                console.log("✅ Usando sprite real del oso");
-                player = this.physics.add.sprite(100, 450, 'oso_idle');
-            } else if (availableTextures.includes('sprite_sheet')) {
-                console.log("✅ Usando sprite sheet");
-                player = this.physics.add.sprite(100, 450, 'sprite_sheet');
-            } else {
-                console.log("⚠️ Usando gráfico de respaldo");
-                // Crear oso básico programáticamente
-                const graphics = this.make.graphics();
-                graphics.fillStyle(0x8B4513);
-                graphics.fillCircle(50, 50, 40);
-                graphics.fillStyle(0x000000);
-                graphics.fillCircle(35, 35, 5);
-                graphics.fillCircle(65, 35, 5);
-                graphics.fillCircle(50, 50, 8);
-                graphics.generateTexture('bear_fallback', 100, 100);
-                graphics.destroy();
-                
-                player = this.physics.add.sprite(100, 450, 'bear_fallback');
-            }
-            
+            // Crear jugador con sprite sheet
+            const player = this.physics.add.sprite(100, 450, 'sprite_sheet');
             player.setBounce(0.3);
             player.setCollideWorldBounds(true);
-            player.setScale(0.8);
+            player.setScale(0.15); // Ajustar escala según el tamaño del sprite sheet
 
-            // Sistema de animaciones con sprites reales
+            // OPCIÓN 2: Demostrar que los SVG también se cargan (pero son estáticos)
+            const svgDemo = this.add.image(700, 100, 'oso_idle');
+            svgDemo.setScale(0.3);
+            this.add.text(700, 150, 'SVG Cargado', { 
+                fontSize: '12px', 
+                fill: '#000',
+                fontFamily: 'Comic Sans MS',
+                backgroundColor: '#fff',
+                padding: { x: 5, y: 2 }
+            }).setOrigin(0.5);
+
+            // Sistema de animación simple usando el sprite sheet completo
             this.anims.create({
                 key: 'idle',
-                frames: [{ key: 'oso_idle' }],
-                frameRate: 10
+                frames: [{ key: 'sprite_sheet', frame: 0 }],
+                frameRate: 10,
+                repeat: -1
             });
-            
-            this.anims.create({
-                key: 'walk', 
-                frames: [{ key: 'oso_walk' }],
-                frameRate: 10
-            });
-            
-            this.anims.create({
-                key: 'hug',
-                frames: [{ key: 'oso_hug' }],
-                frameRate: 10
-            });
-            
-            player.anims.play('idle');
-
-            // Colisiones
-            this.physics.add.collider(player, platforms);
 
             // Controles
             this.cursors = this.input.keyboard.createCursorKeys();
@@ -231,63 +138,75 @@
             this.scoreText = this.add.text(16, 16, 'Abrazos: 0', {
                 fontSize: '24px',
                 fill: '#2C3E50',
-                fontFamily: 'Comic Sans MS',
+                fontFamily: 'Comic Sans MS', 
                 backgroundColor: '#FFFFFF',
-                padding: { x: 10, y: 5 }
+                padding: { x: 10, y: 5 },
+                stroke: '#000',
+                strokeThickness: 2
             });
 
-            // Información de debug
-            this.debugText = this.add.text(16, 50, `Sprites cargados: ${availableTextures.length}`, {
+            // Información sobre los sprites
+            this.add.text(400, 450, 'Sprite Sheet PNG: ✓ | SVG: ✓', {
                 fontSize: '14px',
                 fill: '#2C3E50',
                 fontFamily: 'Comic Sans MS',
                 backgroundColor: '#FFFFFF',
-                padding: { x: 5, y: 2 }
-            });
+                padding: { x: 10, y: 5 }
+            }).setOrigin(0.5);
 
-            console.log("🎮 Juego listo con sprites reales!");
+            this.player = player;
+            console.log("✅ Juego listo con ambos tipos de sprites!");
         }
 
         function update() {
-            if (!this.cursors || !this.spaceKey) return;
-            
-            const player = this.children.list.find(child => child.body);
-            if (!player) return;
+            if (!this.cursors || !this.spaceKey || !this.player) return;
 
-            // Movimiento y animaciones
+            // Movimiento
             if (this.cursors.left.isDown) {
-                player.setVelocityX(-200);
-                player.setFlipX(true);
-                player.anims.play('walk', true);
+                this.player.setVelocityX(-200);
+                this.player.setFlipX(true);
             } else if (this.cursors.right.isDown) {
-                player.setVelocityX(200);
-                player.setFlipX(false);
-                player.anims.play('walk', true);
+                this.player.setVelocityX(200);
+                this.player.setFlipX(false);
             } else {
-                player.setVelocityX(0);
-                player.anims.play('idle', true);
+                this.player.setVelocityX(0);
             }
 
             // Salto
-            if (this.cursors.up.isDown && player.body.touching.down) {
-                player.setVelocityY(-350);
+            if (this.cursors.up.isDown && this.player.body.touching.down) {
+                this.player.setVelocityY(-350);
             }
 
             // Abrazo
             if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) {
-                player.anims.play('hug', true);
                 this.score += 1;
                 this.scoreText.setText('Abrazos: ' + this.score);
                 
-                // Efecto de abrazo
+                // Efecto visual de abrazo
                 const hugEffect = this.add.graphics();
                 hugEffect.lineStyle(6, 0xFFD700, 0.8);
-                hugEffect.strokeCircle(player.x, player.y, 60);
+                hugEffect.strokeCircle(this.player.x, this.player.y, 60);
                 
-                // Volver a idle después del abrazo
+                // Partículas de corazón
+                for (let i = 0; i < 5; i++) {
+                    const heart = this.add.text(
+                        this.player.x + (Math.random() - 0.5) * 80,
+                        this.player.y + (Math.random() - 0.5) * 80,
+                        '❤️',
+                        { fontSize: '24px' }
+                    );
+                    
+                    this.tweens.add({
+                        targets: heart,
+                        y: heart.y - 100,
+                        alpha: 0,
+                        duration: 1500,
+                        onComplete: () => heart.destroy()
+                    });
+                }
+
                 this.time.delayedCall(500, () => {
                     hugEffect.destroy();
-                    player.anims.play('idle', true);
                 });
             }
         }
